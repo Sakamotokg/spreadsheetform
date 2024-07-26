@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <style>
-        /* your styles here */
-    </style>
+    <title>Google Sheet Form</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h1>Connect Google Spreadsheet to HTML</h1>
-                <form name="google-sheet">
+                <form id="google-sheet-form">
                     <div class="form-group">
                         <label for="name">Name:</label>
-                        <input type="text" id="name" name="Name" class="form-control" required>
+                        <input type="text" id="name" name="name" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email:</label>
-                        <input type="email" id="email" name="Email" class="form-control" required>
+                        <input type="email" id="email" name="email" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone:</label>
-                        <input type="number" id="phone" name="Phone" class="form-control" required>
+                        <input type="number" id="phone" name="phone" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
@@ -34,19 +31,35 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzwIk-mzPZgPKh3Bi8M5sor6b6UZoY6JyRsrVoQ3_sAytvqrJNtp8A3zqx97JZNH3-QGQ/exec'  // Replace with your deployed web app URL
-        const form = document.forms['google-sheet']
-      
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzwIk-mzPZgPKh3Bi8M5sor6b6UZoY6JyRsrVoQ3_sAytvqrJNtp8A3zqx97JZNH3-QGQ/exec'; // Replace with your deployed web app URL
+        const form = document.getElementById('google-sheet-form');
+
         form.addEventListener('submit', e => {
-          e.preventDefault()
-          const formData = new URLSearchParams();
-          formData.append('Name', document.getElementById('name').value);
-          formData.append('Email', document.getElementById('email').value);
-          formData.append('Phone', document.getElementById('phone').value);
-          fetch(scriptURL, { method: 'POST', body: formData.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
-            .then(response => alert("Thanks for Contacting us..! We Will Contact You Soon..."))
-            .catch(error => console.error('Error!', error.message))
-        })
+          e.preventDefault();
+          const formData = {
+            'Name': document.getElementById('name').value,
+            'Email': document.getElementById('email').value,
+            'Phone': document.getElementById('phone').value
+          };
+
+          fetch(scriptURL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.result === 'success') {
+              alert("Thanks for contacting us! We will get back to you soon.");
+            } else {
+              alert("There was an error: " + data.error);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        });
     </script>
 </body>
 </html>
